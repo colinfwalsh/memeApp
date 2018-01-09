@@ -92,33 +92,23 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
             NSAttributedStringKey.paragraphStyle : paragraphStyle
         ]
     }
-   
-    //With help from: https://www.hackingwithswift.com/read/27/6/images-and-text
-    func drawImagesAndText() {
-        let renderer = UIGraphicsImageRenderer(size: pickedImage.frame.size)
-        
-        let img = renderer.image { ctx in
 
-            let topString = topLabel.text
-            let bottomString = bottomLabel.text
-            topString?.draw(with: topLabel.frame, options: [], attributes: textAttr(), context: nil)
-            bottomString?.draw(with: bottomLabel.frame, options: [], attributes: textAttr(), context: nil)
-            
-            let drawnImage = pickedImage.image
-            //drawnImage?.draw(in: pickedImage.frame)
-            
-            
-        }
-        
-        pickedImage.image = img
-    }
-    
     @IBAction func shareButtonTapped(_ sender: Any) {
-        drawImagesAndText()
-        let activityViewController = UIActivityViewController.init(activityItems: [pickedImage.image], applicationActivities: nil)
+        UIGraphicsBeginImageContext(self.pickedImage.frame.size)
+        view.drawHierarchy(in: self.pickedImage.frame, afterScreenUpdates: true)
+        let pickedImageFrame = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        let finalImage = pickedImageFrame
+        let activityViewController = UIActivityViewController.init(activityItems: [finalImage], applicationActivities: nil)
         self.present(activityViewController, animated: true, completion: nil)
-        activityViewController.completionWithItemsHandler {completion in
-            print(completion)
+        
+        activityViewController.completionWithItemsHandler =
+            {(activity, success, items, error) in
+                if success {
+                    activityViewController.dismiss(animated: true, completion: nil)
+                } else if (error != nil) {
+                    print(error)
+                }
         }
     }
     
