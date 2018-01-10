@@ -8,6 +8,7 @@
 
 import UIKit
 import Photos
+import AVFoundation
 
 struct Meme {
     let top: String!
@@ -31,13 +32,14 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     @IBOutlet weak var cameraButton: UIBarButtonItem!
     @IBOutlet weak var topLabel: UITextField!
     @IBOutlet weak var bottomLabel: UITextField!
+    @IBOutlet weak var topBar: UIToolbar!
     
     @IBOutlet var keyboardHeightLayoutConstraint: NSLayoutConstraint?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        setDefaultText()
+        setTextField(top: "top", bottom: "bottom")
         
         topLabel.delegate = self
         bottomLabel.delegate = self
@@ -45,40 +47,37 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         topLabel.clearsOnBeginEditing = true
         bottomLabel.clearsOnBeginEditing = true
         
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardNotification(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            cameraButton.isEnabled = true
+        }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
-    
-    func setDefaultText() {
-        //From this post
-        //https://www.reddit.com/r/swift/comments/2vmtfs/text_border_color_of_label/
-        topLabel.attributedText = NSAttributedString(string: "TOP", attributes: textAttr())
-        bottomLabel.attributedText = NSAttributedString(string: "BOTTOM", attributes: textAttr())
-       
-        topLabel.isEnabled = false
-        bottomLabel.isEnabled = false
-    }
-   
-    //From: https://stackoverflow.com/questions/25693130/move-textfield-when-keyboard-appears-swift
-    @objc func keyboardNotification(notification: NSNotification) {
-        if let userInfo = notification.userInfo {
-            let endFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-            let duration:TimeInterval = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
-            let animationCurveRawNSN = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? NSNumber
-            let animationCurveRaw = animationCurveRawNSN?.uintValue ?? UIViewAnimationOptions.curveEaseInOut.rawValue
-            let animationCurve:UIViewAnimationOptions = UIViewAnimationOptions(rawValue: animationCurveRaw)
-            if (endFrame?.origin.y)! >= UIScreen.main.bounds.size.height {
-                self.keyboardHeightLayoutConstraint?.constant = 0.0
-            } else {
-                self.keyboardHeightLayoutConstraint?.constant = endFrame?.size.height ?? 0.0
+    //From: https://stackoverflow.com/questions/26070242/move-view-with-keyboard-using-swift
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y == 0{
+                self.view.frame.origin.y -= keyboardSize.height
             }
-            UIView.animate(withDuration: duration,
-                           delay: TimeInterval(0),
-                           options: animationCurve,
-                           animations: { self.view.layoutIfNeeded() },
-                           completion: nil)
         }
     }
     
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y != 0{
+                self.view.frame.origin.y += keyboardSize.height
+            }
+        }
+    }
+    
+    func setTextField(top: String, bottom: String) {
+        //From this post
+        //https://www.reddit.com/r/swift/comments/2vmtfs/text_border_color_of_label/
+        topLabel.attributedText = NSAttributedString(string: top.uppercased(), attributes: textAttr())
+        bottomLabel.attributedText = NSAttributedString(string: bottom.uppercased(), attributes: textAttr())
+    }
+   
     func textAttr() -> [NSAttributedStringKey: Any] {
         
         let paragraphStyle = NSMutableParagraphStyle()
@@ -92,14 +91,14 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
             NSAttributedStringKey.paragraphStyle : paragraphStyle
         ]
     }
-
+    
     @IBAction func shareButtonTapped(_ sender: Any) {
-        UIGraphicsBeginImageContext(self.pickedImage.frame.size)
-        view.drawHierarchy(in: self.pickedImage.frame, afterScreenUpdates: true)
+        UIGraphicsBeginImageContext(self.view.frame.size)
+        view.drawHierarchy(in: self.view.frame, afterScreenUpdates: true)
         let pickedImageFrame = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         let finalImage = pickedImageFrame
-        let activityViewController = UIActivityViewController.init(activityItems: [finalImage], applicationActivities: nil)
+        let activityViewController = UIActivityViewController.init(activityItems: [finalImage!], applicationActivities: nil)
         self.present(activityViewController, animated: true, completion: nil)
         
         activityViewController.completionWithItemsHandler =
@@ -113,12 +112,20 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
     
     @IBAction func cancelButtonTapped(_ sender: Any) {
-        setDefaultText()
+        setTextField(top: "top", bottom: "bottom")
         pickedImage.image = nil
         shareButton.isEnabled = false
     }
     
     @IBAction func cameraButtonTapped(_ sender: Any) {
+        //From: https://turbofuture.com/cell-phones/Access-Photo-Camera-and-Library-in-Swift
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.sourceType = .camera;
+            imagePicker.allowsEditing = false
+            self.present(imagePicker, animated: true, completion: nil)
+        }
     }
     
     @IBAction func pickAnImage(_ sender: Any) {
@@ -152,9 +159,14 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         shareButton.isEnabled = true
     }
     
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        setTextField(top: topLabel.text!, bottom: bottomLabel.text!)
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
 }
+
 

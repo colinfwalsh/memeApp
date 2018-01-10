@@ -102,6 +102,7 @@
                         <outlet property="keyboardHeightLayoutConstraint" destination="LGm-yA-mwh" id="w02-Jy-ipD"/>
                         <outlet property="pickedImage" destination="GMA-dA-eOo" id="ew0-at-ihE"/>
                         <outlet property="shareButton" destination="CkW-9b-8iK" id="vjp-wk-z3J"/>
+                        <outlet property="topBar" destination="yvA-eh-MqR" id="uX8-VH-UFG"/>
                         <outlet property="topLabel" destination="MBl-1P-O9l" id="McV-8Q-dIa"/>
                     </connections>
                 </viewController>
