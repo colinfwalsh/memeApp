@@ -47,11 +47,6 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             cameraButton.isEnabled = true
         }
-        
-        if bottomLabel.isFirstResponder {
-            print(bottomLabel.isFirstResponder)
-        }
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -166,8 +161,6 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         bottomLabel.isEnabled = true
         shareButton.isEnabled = true
     }
-    
-    
 }
 
 extension MemeViewController: UITextFieldDelegate {
