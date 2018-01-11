@@ -15,16 +15,9 @@ struct Meme {
     let bottom: String!
     let image: UIImage!
     let completedImage: UIImage!
-    
-    init(top: String, bottom: String, image: UIImage, completedImage: UIImage) {
-        self.top = top
-        self.bottom = bottom
-        self.image = image
-        self.completedImage = completedImage
-    }
 }
 
-class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
+class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var pickedImage: UIImageView!
     @IBOutlet weak var shareButton: UIBarButtonItem!
@@ -33,13 +26,17 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     @IBOutlet weak var topLabel: UITextField!
     @IBOutlet weak var bottomLabel: UITextField!
     @IBOutlet weak var topBar: UIToolbar!
+    @IBOutlet weak var bottomBar: UIToolbar!
     
-    @IBOutlet var keyboardHeightLayoutConstraint: NSLayoutConstraint?
+    @IBOutlet weak var bottomLabelConstraint: NSLayoutConstraint!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         setTextField(top: "top", bottom: "bottom")
+        
+        view.backgroundColor = .black
         
         topLabel.delegate = self
         bottomLabel.delegate = self
@@ -51,24 +48,43 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
             cameraButton.isEnabled = true
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-    }
-    //From: https://stackoverflow.com/questions/26070242/move-view-with-keyboard-using-swift
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-            if self.view.frame.origin.y == 0{
-                self.view.frame.origin.y -= keyboardSize.height
-            }
+        if bottomLabel.isFirstResponder {
+            print(bottomLabel.isFirstResponder)
         }
+        
     }
     
-    @objc func keyboardWillHide(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-            if self.view.frame.origin.y != 0{
-                self.view.frame.origin.y += keyboardSize.height
-            }
-        }
+    override func viewWillAppear(_ animated: Bool) {
+        subscribeToKeyboardNotifications()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        unsubscribeFromKeyboardNotifications()
+    }
+    
+    @objc func keyboardWillHide(_ notification: Notification) {
+        bottomLabelConstraint.constant = bottomLabelConstraint.constant - getKeyboardHeight(notification)
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        bottomLabelConstraint.constant = bottomLabelConstraint.constant + getKeyboardHeight(notification)
+    }
+    
+    func getKeyboardHeight(_ notification: Notification) -> CGFloat {
+        
+        let userInfo = notification.userInfo
+        let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue // of CGRect
+        return keyboardSize.cgRectValue.height
+    }
+    
+    @objc func subscribeToKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillShow), name: Notification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillHide), name: Notification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    func unsubscribeFromKeyboardNotifications() {
+        NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
     }
     
     func setTextField(top: String, bottom: String) {
@@ -92,13 +108,20 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         ]
     }
     
+    func toggleToolbars() {
+        topBar.isHidden = !topBar.isHidden
+        bottomBar.isHidden = !bottomBar.isHidden
+    }
+    
     @IBAction func shareButtonTapped(_ sender: Any) {
-        UIGraphicsBeginImageContext(self.view.frame.size)
-        view.drawHierarchy(in: self.view.frame, afterScreenUpdates: true)
-        let pickedImageFrame = UIGraphicsGetImageFromCurrentImageContext()
+        toggleToolbars()
+        
+        UIGraphicsBeginImageContext(view.frame.size)
+        view.drawHierarchy(in: view.frame, afterScreenUpdates: true)
+        let finalMemeImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        let finalImage = pickedImageFrame
-        let activityViewController = UIActivityViewController.init(activityItems: [finalImage!], applicationActivities: nil)
+        
+        let activityViewController = UIActivityViewController.init(activityItems: [finalMemeImage ?? UIImage()], applicationActivities: nil)
         self.present(activityViewController, animated: true, completion: nil)
         
         activityViewController.completionWithItemsHandler =
@@ -106,9 +129,11 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 if success {
                     activityViewController.dismiss(animated: true, completion: nil)
                 } else if (error != nil) {
-                    print(error)
+                    print(error!)
                 }
         }
+        
+        toggleToolbars()
     }
     
     @IBAction func cancelButtonTapped(_ sender: Any) {
@@ -117,34 +142,17 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         shareButton.isEnabled = false
     }
     
-    @IBAction func cameraButtonTapped(_ sender: Any) {
+    @IBAction func openImagePicker(_ sender: Any) {
         //From: https://turbofuture.com/cell-phones/Access-Photo-Camera-and-Library-in-Swift
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.sourceType = .camera;
-            imagePicker.allowsEditing = false
-            self.present(imagePicker, animated: true, completion: nil)
+            imagePicker.sourceType = .camera
+        } else if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            imagePicker.sourceType = .photoLibrary
         }
-    }
-    
-    @IBAction func pickAnImage(_ sender: Any) {
-        PHPhotoLibrary.requestAuthorization { status in
-            switch status {
-            case PHAuthorizationStatus.authorized:
-                OperationQueue.main.addOperation {
-                    let imagePicker = UIImagePickerController()
-                    imagePicker.delegate = self
-                    self.present(imagePicker, animated: true, completion: nil)
-                }
-            case PHAuthorizationStatus.notDetermined:
-                print("Not determined")
-            case PHAuthorizationStatus.restricted:
-                print("Restricted")
-            default:
-                print("Denied")
-            }
-        }
+        imagePicker.allowsEditing = false
+        self.present(imagePicker, animated: true, completion: nil)
     }
     
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -159,6 +167,10 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         shareButton.isEnabled = true
     }
     
+    
+}
+
+extension MemeViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         setTextField(top: topLabel.text!, bottom: bottomLabel.text!)
     }

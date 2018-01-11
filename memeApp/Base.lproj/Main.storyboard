@@ -61,13 +61,13 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="fmf-b6-qDr"/>
                                     <barButtonItem enabled="NO" systemItem="camera" id="ocT-lu-orA">
                                         <connections>
-                                            <action selector="cameraButtonTapped:" destination="BYZ-38-t0r" id="Zs0-h2-eH4"/>
+                                            <action selector="openImagePicker:" destination="BYZ-38-t0r" id="OZa-gA-yT0"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem width="30" style="plain" systemItem="fixedSpace" id="GYH-jo-KQI"/>
                                     <barButtonItem title="Album" id="JTO-iN-Zqg">
                                         <connections>
-                                            <action selector="pickAnImage:" destination="BYZ-38-t0r" id="pox-jd-fP5"/>
+                                            <action selector="openImagePicker:" destination="BYZ-38-t0r" id="9Ig-Yh-ZtQ"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Iu4-Qi-WRf"/>
@@ -96,10 +96,11 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="bottomBar" destination="NVN-xd-Di7" id="ewK-DQ-FaD"/>
                         <outlet property="bottomLabel" destination="dyN-MC-o5Q" id="cNZ-V3-qBw"/>
+                        <outlet property="bottomLabelConstraint" destination="jzk-ag-zQT" id="7Sw-i8-lW6"/>
                         <outlet property="cameraButton" destination="ocT-lu-orA" id="CoA-YF-ePj"/>
                         <outlet property="cancelButton" destination="bCy-0Q-liz" id="qrP-qt-pif"/>
-                        <outlet property="keyboardHeightLayoutConstraint" destination="LGm-yA-mwh" id="w02-Jy-ipD"/>
                         <outlet property="pickedImage" destination="GMA-dA-eOo" id="ew0-at-ihE"/>
                         <outlet property="shareButton" destination="CkW-9b-8iK" id="vjp-wk-z3J"/>
                         <outlet property="topBar" destination="yvA-eh-MqR" id="uX8-VH-UFG"/>
