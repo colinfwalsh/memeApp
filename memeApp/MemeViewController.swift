@@ -15,10 +15,14 @@ struct Meme {
     let bottom: String!
     let image: UIImage!
     let completedImage: UIImage!
+    
+    var title: String {
+        return top + bottom
+    }
 }
 
 class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-
+    
     @IBOutlet weak var pickedImage: UIImageView!
     @IBOutlet weak var shareButton: UIBarButtonItem!
     @IBOutlet weak var cancelButton: UIBarButtonItem!
@@ -29,7 +33,6 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     @IBOutlet weak var bottomBar: UIToolbar!
     
     @IBOutlet weak var bottomLabelConstraint: NSLayoutConstraint!
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,7 +93,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         topLabel.attributedText = NSAttributedString(string: top.uppercased(), attributes: textAttr())
         bottomLabel.attributedText = NSAttributedString(string: bottom.uppercased(), attributes: textAttr())
     }
-   
+    
     func textAttr() -> [NSAttributedStringKey: Any] {
         
         let paragraphStyle = NSMutableParagraphStyle()
@@ -119,12 +122,20 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         UIGraphicsEndImageContext()
         
         let activityViewController = UIActivityViewController.init(activityItems: [finalMemeImage ?? UIImage()], applicationActivities: nil)
-        self.present(activityViewController, animated: true, completion: nil)
+        
+        DispatchQueue.main.async {
+            self.present(activityViewController, animated: true, completion: nil)
+        }
+        
+        
         
         activityViewController.completionWithItemsHandler =
             {(activity, success, items, error) in
                 if success {
-                    activityViewController.dismiss(animated: true, completion: nil)
+                    OperationQueue.main.addOperation {
+                        self.save(with: Meme(top: self.topLabel.text!, bottom: self.bottomLabel.text!, image: self.pickedImage.image, completedImage: finalMemeImage!))
+                        activityViewController.dismiss(animated: true, completion: nil)
+                    }
                 } else if (error != nil) {
                     print(error!)
                 }
@@ -162,6 +173,13 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         topLabel.isEnabled = true
         bottomLabel.isEnabled = true
         shareButton.isEnabled = true
+    }
+    
+    func save(with meme: Meme) {
+        
+        // Add it to the memes array in the Application Delegate
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.memes.append(meme)
     }
 }
 

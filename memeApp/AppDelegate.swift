@@ -10,6 +10,12 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    var memes = [Meme]() {
+        didSet {
+            print("*********************SETTING MEMES ARRAY************************")
+        }
+    }
 
     var window: UIWindow?
 
