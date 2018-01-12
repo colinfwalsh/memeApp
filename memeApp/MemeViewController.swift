@@ -58,11 +58,13 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
     
     @objc func keyboardWillHide(_ notification: Notification) {
-        bottomLabelConstraint.constant = bottomLabelConstraint.constant - getKeyboardHeight(notification)
+        view.frame.origin.y = 0
     }
     
     @objc func keyboardWillShow(_ notification: Notification) {
-        bottomLabelConstraint.constant = bottomLabelConstraint.constant + getKeyboardHeight(notification)
+        if bottomLabel.isFirstResponder {
+            view.frame.origin.y -= getKeyboardHeight(notification)
+        }
     }
     
     func getKeyboardHeight(_ notification: Notification) -> CGFloat {
@@ -73,8 +75,8 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
     
     @objc func subscribeToKeyboardNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillShow), name: Notification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillHide), name: Notification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: Notification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: Notification.Name.UIKeyboardWillHide, object: nil)
     }
     
     func unsubscribeFromKeyboardNotifications() {
