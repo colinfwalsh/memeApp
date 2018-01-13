@@ -17,6 +17,7 @@
 		AFE19C9C20040BFC00620BF0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AFE19C9A20040BFC00620BF0 /* LaunchScreen.storyboard */; };
 		AFE19CA720040BFC00620BF0 /* memeAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE19CA620040BFC00620BF0 /* memeAppTests.swift */; };
 		AFE19CB220040BFC00620BF0 /* memeAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE19CB120040BFC00620BF0 /* memeAppUITests.swift */; };
+		BD50A7CE200AA9660017E683 /* Meme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD50A7CD200AA9660017E683 /* Meme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		AFE19CAD20040BFC00620BF0 /* memeAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = memeAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFE19CB120040BFC00620BF0 /* memeAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = memeAppUITests.swift; sourceTree = "<group>"; };
 		AFE19CB320040BFC00620BF0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BD50A7CD200AA9660017E683 /* Meme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 			children = (
 				AFE19C9120040BFC00620BF0 /* AppDelegate.swift */,
 				AFE19C9320040BFC00620BF0 /* MemeViewController.swift */,
+				BD50A7CD200AA9660017E683 /* Meme.swift */,
 				AFE19C9520040BFC00620BF0 /* Main.storyboard */,
 				AF0E2EE72007F56B0034A013 /* MemeTableViewController.swift */,
 				AF51FF44200950650075DC79 /* MemeDetailViewController.swift */,
@@ -271,6 +274,7 @@
 				AFE19C9420040BFC00620BF0 /* MemeViewController.swift in Sources */,
 				AF0E2EEA2007F57A0034A013 /* MemeCollectionViewController.swift in Sources */,
 				AFE19C9220040BFC00620BF0 /* AppDelegate.swift in Sources */,
+				BD50A7CE200AA9660017E683 /* Meme.swift in Sources */,
 				AF0E2EE82007F56B0034A013 /* MemeTableViewController.swift in Sources */,
 				AF51FF45200950650075DC79 /* MemeDetailViewController.swift in Sources */,
 			);

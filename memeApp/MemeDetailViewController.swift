@@ -19,9 +19,10 @@ class MemeDetailViewController: UIViewController {
         detailMemeImageView.image = memeImage
         detailMemeImageView.contentMode = .scaleAspectFit
         detailMemeImageView.backgroundColor = .black
+        tabBarController?.tabBar.isHidden = true
     }
-
     
-    
-
+    override func viewWillDisappear(_ animated: Bool) {
+        tabBarController?.tabBar.isHidden = false
+    }
 }

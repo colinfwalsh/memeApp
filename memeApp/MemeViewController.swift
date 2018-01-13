@@ -10,17 +10,6 @@ import UIKit
 import Photos
 import AVFoundation
 
-struct Meme {
-    let top: String!
-    let bottom: String!
-    let image: UIImage!
-    let completedImage: UIImage!
-    
-    var title: String {
-        return top + bottom
-    }
-}
-
 class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @IBOutlet weak var pickedImage: UIImageView!
@@ -111,6 +100,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     func toggleToolbars() {
         topBar.isHidden = !topBar.isHidden
         bottomBar.isHidden = !bottomBar.isHidden
+        tabBarController?.tabBar.isHidden = !(tabBarController?.tabBar.isHidden)!
     }
     
     @IBAction func shareButtonTapped(_ sender: Any) {
@@ -148,6 +138,8 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         setTextField(top: "top", bottom: "bottom")
         pickedImage.image = nil
         shareButton.isEnabled = false
+        
+        navigationController?.popViewController(animated: true)
     }
     
     @IBAction func openImagePicker(_ sender: Any) {
@@ -160,7 +152,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
             imagePicker.sourceType = .photoLibrary
         }
         imagePicker.allowsEditing = false
-        self.present(imagePicker, animated: true, completion: nil)
+        present(imagePicker, animated: true, completion: nil)
     }
     
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
