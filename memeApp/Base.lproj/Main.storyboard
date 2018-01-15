@@ -259,7 +259,6 @@
                     <connections>
                         <outlet property="bottomBar" destination="NVN-xd-Di7" id="ewK-DQ-FaD"/>
                         <outlet property="bottomLabel" destination="dyN-MC-o5Q" id="cNZ-V3-qBw"/>
-                        <outlet property="bottomLabelConstraint" destination="jzk-ag-zQT" id="7Sw-i8-lW6"/>
                         <outlet property="cameraButton" destination="ocT-lu-orA" id="CoA-YF-ePj"/>
                         <outlet property="cancelButton" destination="bCy-0Q-liz" id="qrP-qt-pif"/>
                         <outlet property="pickedImage" destination="GMA-dA-eOo" id="ew0-at-ihE"/>

@@ -21,8 +21,6 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     @IBOutlet weak var topBar: UIToolbar!
     @IBOutlet weak var bottomBar: UIToolbar!
     
-    @IBOutlet weak var bottomLabelConstraint: NSLayoutConstraint!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -55,7 +53,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     
     @objc func keyboardWillShow(_ notification: Notification) {
         if bottomLabel.isFirstResponder {
-            view.frame.origin.y -= getKeyboardHeight(notification)
+            view.frame.origin.y -= getKeyboardHeight(notification) - (tabBarController?.tabBar.frame.height)!
         }
     }
     
@@ -135,10 +133,6 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
     
     @IBAction func cancelButtonTapped(_ sender: Any) {
-        setTextField(top: "top", bottom: "bottom")
-        pickedImage.image = nil
-        shareButton.isEnabled = false
-        
         navigationController?.popViewController(animated: true)
     }
     
